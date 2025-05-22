@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sentiment Analyzer</title>
+    <link rel = "stylesheet" href="static/style.css">
+</head>
+<body>
+    <h1>Sentiment Analyzer 💻</h1>
+    <form method="POST" action="/">
+        <textarea name="Text" placeholder="Enter text to analyze..."></textarea><br>
+        <button type="submit">Analyze✨</button>
+    </form>
+    {% if sentiment %}
+        <div id="result">Sentiment: {{ sentiment }}</div>
+    {% endif %}
+</body>
+</html>
