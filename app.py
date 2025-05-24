@@ -6,19 +6,15 @@ import os
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
+# Download NLTK resources at runtime (for Render deployment)
+nltk.download('punkt')
+nltk.download('stopwords')
+
+# Initialize Flask app
 app = Flask(__name__)
 
-# Ensure necessary NLTK data is available
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')
-
-try:
-    stop_words = set(stopwords.words('english'))
-except LookupError:
-    nltk.download('stopwords')
-    stop_words = set(stopwords.words('english'))
+# Load NLTK stopwords
+stop_words = set(stopwords.words('english'))
 
 # Load model and vectorizer
 try:
@@ -29,7 +25,7 @@ except FileNotFoundError:
     vectorizer = None
     print("Warning: Model files not found. Sentiment analysis will not work.")
 
-# Text preprocessing function
+# Text preprocessing
 def preprocess_text(text):
     text = str(text).lower()
     text = re.sub(r'[^\w\s]', '', text)
@@ -37,12 +33,12 @@ def preprocess_text(text):
     tokens = [word for word in tokens if word not in stop_words]
     return " ".join(tokens)
 
-# Home route for sentiment analysis
+# Home route
 @app.route('/', methods=['GET', 'POST'])
 def home():
     sentiment = None
     result_class = ""
-    
+
     if request.method == 'POST':
         text = request.form['Text'].strip()
         
@@ -57,7 +53,6 @@ def home():
             sentiment_map = {1: "Positive", 0: "Negative", 2: "Neutral"}
             sentiment_label = sentiment_map.get(prediction, "Unknown")
 
-            # Get prediction confidence
             probabilities = model.predict_proba(vectorized_text)[0]
             confidence = probabilities[list(model.classes_).index(prediction)] * 100
             sentiment = f"{sentiment_label}: {confidence:.2f}%"
@@ -76,9 +71,6 @@ def home():
 
     return render_template('index.html', sentiment=sentiment, result_class=result_class)
 
-# Run the app
+# Run app
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
-# Ensure the templates directory exists
-if not os.path.exists('templates'):
-    os.makedirs('templates')
