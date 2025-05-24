@@ -8,18 +8,16 @@ from nltk.tokenize import word_tokenize
 
 app = Flask(__name__)
 
-# Load the trained model and vectorizer
 try:
     model = joblib.load('sentiment_model.joblib')
     vectorizer = joblib.load('text_vectorizer.joblib')
+
 except FileNotFoundError:
     model = None
     vectorizer = None
     print("Warning: Model files not found. Sentiment analysis will not work.")
 
 # Download NLTK resources if not already present
-# These try-except blocks are good for local development.
-# For deployment on Render, we also added a specific build command.
 try:
     stop_words = set(stopwords.words('english'))
 except LookupError:
@@ -40,25 +38,21 @@ def preprocess_text(text):
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    # Initialize sentiment and result_class with default values
-    # These will be used for the initial GET request (when the page first loads)
-    # or if no analysis is performed.
+
     sentiment = None
     result_class = ""
-
     if request.method == 'POST':
         text = request.form['Text'].strip() # .strip() removes leading/trailing whitespace
 
-        if not text: # Check if the text is empty after stripping whitespace
+        if not text: 
             sentiment = "Please enter some text to analyze."
-            result_class = "info-message" # Assign class for info messages
+            result_class = "info-message" 
         elif model and vectorizer:
             processed_text = preprocess_text(text)
             vectorized_text = vectorizer.transform([processed_text])
             prediction = model.predict(vectorized_text)[0]
 
-            # IMPORTANT: Adjust this mapping to match your model's output and desired labels
-            # For example, if your model predicts 0 for Negative, 1 for Positive, 2 for Neutral:
+            #  model predicts 0 for Negative, 1 for Positive, 2 for Neutral:
             sentiment_map = {1: "Positive", 0: "Negative", 2: "Neutral"}
             sentiment_label = sentiment_map.get(prediction, "Unknown")
             
@@ -66,27 +60,21 @@ def home():
             probabilities = model.predict_proba(vectorized_text)[0]
             
             # Find the index of the predicted class in model.classes_
-            # This ensures we get the correct probability for the predicted sentiment.
             predicted_class_prob_index = list(model.classes_).index(prediction)
             confidence = probabilities[predicted_class_prob_index] * 100 
-
             sentiment = f"{sentiment_label}: {confidence:.2f}%"
 
-            # Determine the CSS class based on sentiment_label
             if sentiment_label == "Positive":
-                result_class = "" # Default success style (or you can add 'positive-result' class)
+                result_class = "positive-result" # Default success style 
             elif sentiment_label == "Negative":
                 result_class = "negative-result"
             elif sentiment_label == "Neutral":
                 result_class = "neutral-result"
             else:
                 result_class = "info-message" # For "Unknown" or other unexpected labels
-
         else:
             sentiment = "Model files not loaded. Please contact administrator."
             result_class = "info-message" # Assign class for info messages
-
-    # Pass both sentiment and result_class to the template
     return render_template('index.html', sentiment=sentiment, result_class=result_class)
 
 if __name__ == '__main__':
