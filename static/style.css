@@ -47,6 +47,6 @@
         }
         #result {
             margin-top: 20px;
-            font-size: 1.5em;
-            color: #333;
+            font-size: 1.em;
+            color: #f3efef;
         }
