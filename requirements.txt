@@ -1,4 +1,6 @@
 Flask
+nltk==3.8
 joblib
-nltk
+gunicorn
 scikit-learn
+numpy
