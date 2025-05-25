@@ -1,5 +1,4 @@
 Flask
-scikit-learn
 joblib
-pandas
 nltk
+scikit-learn

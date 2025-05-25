@@ -1,14 +1,14 @@
 from flask import Flask, render_template, request
-import joblib
-import nltk
-import re
-import os
-from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-
-# Download NLTK resources at runtime (for Render deployment)
-nltk.download('punkt')
-nltk.download('stopwords')
+from nltk.corpus import stopwords
+import joblib
+from nltk.sentiment import SentimentIntensityAnalyzer
+import nltk
+import os
+import re
+# Setup nltk_data path
+nltk_data_path = os.path.join(os.getcwd(), 'nltk_data')
+nltk.data.path.append(nltk_data_path)
 
 # Initialize Flask app
 app = Flask(__name__)

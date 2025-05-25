@@ -2,6 +2,8 @@ services:
   - type: web
     name: sentiment-analyzer
     env: python
-    buildCommand: |
-      pip install -r requirements.txt
+    buildCommand: ""
     startCommand: python app.py
+    envVars:
+      - key: NLTK_DATA
+        value: /opt/render/project/src/nltk_data
