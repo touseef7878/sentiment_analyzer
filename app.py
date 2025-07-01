@@ -3,18 +3,15 @@ import joblib
 import nltk
 import re
 import os
-from nltk.corpus import stopwords
+
+# Download NLTK punkt
+nltk.download('punkt')
+
+# Load NLTK tokenizer
 from nltk.tokenize import word_tokenize
 
-# Set up local nltk_data path
-nltk_data_path = os.path.join(os.getcwd(), 'nltk_data')
-nltk.data.path.append(nltk_data_path)
-
-# Initialize Flask app
+# Setup Flask
 app = Flask(__name__)
-
-# Load stopwords
-stop_words = set(stopwords.words('english'))
 
 # Load model and vectorizer
 try:
@@ -25,13 +22,11 @@ except FileNotFoundError:
     vectorizer = None
     print("Model files not found.")
 
-# Text preprocessing
+# Preprocess
 def preprocess_text(text):
     text = str(text).lower()
     text = re.sub(r'[^\w\s]', '', text)
-    tokens = word_tokenize(text)
-    tokens = [word for word in tokens if word not in stop_words]
-    return " ".join(tokens)
+    return text
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -55,7 +50,6 @@ def home():
             probabilities = model.predict_proba(vectorized_text)[0]
             confidence = probabilities[list(model.classes_).index(prediction)] * 100
             sentiment = f"{sentiment_label}: {confidence:.2f}%"
-
             result_class = f"{sentiment_label.lower()}-result"
         else:
             sentiment = "Model files not loaded."
@@ -65,4 +59,3 @@ def home():
 
 if __name__ == '__main__':
     app.run(debug=True)
-# Ensure nltk resources are downloaded
